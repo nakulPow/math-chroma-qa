@@ -9,7 +9,6 @@ export default function Home() {
   const [comments, setComments] = useState(data.map(() => new Object()));
   const colorCode = {'0':'white','1':'purple','2':'blue','3':'green','4':'red','5':'yellow','6':'cyan','7':'orange','8':'gray','9':'pink'}
   const handleSubmit = (e) => {
-    console.log(e)
     e.preventDefault();
     console.log('Submitted Answers:', answers);
     console.log('Submitted Comments:', comments);
@@ -21,12 +20,14 @@ export default function Home() {
     }
     // Handle form submission logic here
   };
+
   const item = data[currentQuestion]
+  
   return(
 <div className="container">
-      <EditableParagraph  placeholder={`Question ${currentQuestion+1}: ${item.question}`}></EditableParagraph>
+      <EditableParagraph placeholder={`Question ${currentQuestion+1}: ${item.question}`}/>
       
-      <form>
+      <form onSubmit={handleSubmit}>
           {/* <div key={currentQuestion}> */}
             {/* <h1 className="text-2xl font-bold mb-4">Question {currentQuestion + 1}: {item.question}</h1>
             <EditableParagraph placeholder={item.question}/>
@@ -79,7 +80,7 @@ export default function Home() {
               
             </div>
           {/* </div> */}
-        <button type="submit" className="submit-btn" onClick={handleSubmit}>Submit</button>
+        <button type="submit" className="submit-btn">Submit</button>
       </form>
       <style>{`
         .container {

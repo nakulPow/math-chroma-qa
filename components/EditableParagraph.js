@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { TbEditCircle } from 'react-icons/tb';
 
 const EditableParagraph = ({ placeholder }) => {
+  console.log(placeholder)
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(placeholder);
+  
+  useEffect(() => {
+    // Function to update string based on attribute
+    function updateString() {
+      setText(placeholder)
+    }
+
+    // Call the function when attribute changes
+    updateString();
+  }, [placeholder]); 
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -43,7 +54,7 @@ const EditableParagraph = ({ placeholder }) => {
           >
             <TbEditCircle />
           </button>
-          <h1 className="text-2xl font-bold mb-4">{text}</h1>
+          <h1 className="text-2xl font-bold mb-4"> {text}</h1>
           
         </div>
       )}
