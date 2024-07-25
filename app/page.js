@@ -1,13 +1,15 @@
 'use client';
 import data from '../data.json';
 import React, { useState } from 'react';
+import EditableParagraph from '../components/EditableParagraph';
 // import React, {useState}  from 'react';
 export default function Home() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState(data.map(() => ''));
-  const [comments, setComments] = useState(data.map(() => ''));
-
+  const [answers, setAnswers] = useState(data.map(() => new Object()));
+  const [comments, setComments] = useState(data.map(() => new Object()));
+  const colorCode = {'0':'white','1':'purple','2':'blue','3':'green','4':'red','5':'yellow','6':'cyan','7':'orange','8':'gray','9':'pink'}
   const handleSubmit = (e) => {
+    console.log(e)
     e.preventDefault();
     console.log('Submitted Answers:', answers);
     console.log('Submitted Comments:', comments);
@@ -22,9 +24,13 @@ export default function Home() {
   const item = data[currentQuestion]
   return(
 <div className="container">
-      <form onSubmit={handleSubmit}>
-          <div key={currentQuestion}>
-            <p style={{fontSize:'26px'}}>Question {currentQuestion + 1}: {item.question}</p>
+      <EditableParagraph  placeholder={`Question ${currentQuestion+1}: ${item.question}`}></EditableParagraph>
+      
+      <form>
+          {/* <div key={currentQuestion}> */}
+            {/* <h1 className="text-2xl font-bold mb-4">Question {currentQuestion + 1}: {item.question}</h1>
+            <EditableParagraph placeholder={item.question}/>
+            <p style={{fontSize:'26px'}}>Question {currentQuestion + 1}: {item.question}</p> */}
             <div className="matrices">
             <br/>
             <p style={{fontSize:'22px'}}>Input Matrices:</p>
@@ -36,43 +42,44 @@ export default function Home() {
                       {mItem.replace(/\[|\]/g, '').split(',\n').map((row, rowIndex) => (
                         <tr key={rowIndex}>
                           {row.split(',').map((col, colIndex) => (
-                            <td key={colIndex} className={parseInt(col) === 3 ? 'blue' : 'default'}>{col}</td>
+                            <td key={colIndex} style={{backgroundColor: col in colorCode ? colorCode[col] : 'white'}}></td>
                           ))}
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  <div className="form-group">
+                    <label htmlFor={`answer-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`} style={{fontSize:'22px'}}>Answer:</label>
+                    <textarea
+                      id={`answer-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`}
+                      name={`answer-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`}
+                      rows="4"
+                      onChange={(e) => {
+                        const newAnswers = [...answers];
+                        newAnswers[currentQuestion][(mIndex + 10).toString(36)]= e.target.value;
+                        setAnswers(newAnswers);
+                      }}    
+                    ></textarea>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor={`comments-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`} style={{fontSize:'22px'}}>Comments:</label>
+                    <textarea
+                      id={`comments-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`}
+                      name={`comments-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`}
+                      rows="4"
+                      onChange={(e) => {
+                        const newComments = [...comments];
+                        newComments[currentQuestion][(mIndex + 10).toString(36)]= e.target.value;
+                        setComments(newComments);
+                      }}
+                    ></textarea>
+                  </div>
                 </div>
               ))}
+              
             </div>
-            <div className="form-group">
-              <label htmlFor={`answer-${currentQuestion}`} style={{fontSize:'22px'}}>Answer:</label>
-              <textarea
-                id={`answer-${currentQuestion}`}
-                name={`answer-${currentQuestion}`}
-                rows="4"
-                onChange={(e) => {
-                  const newAnswers = [...answers];
-                  newAnswers[currentQuestion] = e.target.value;
-                  setAnswers(newAnswers);
-                }}    
-              ></textarea>
-            </div>
-            <div className="form-group">
-              <label htmlFor={`comments-${currentQuestion}`} style={{fontSize:'22px'}}>Comments:</label>
-              <textarea
-                id={`comments-${currentQuestion}`}
-                name={`comments-${currentQuestion}`}
-                rows="4"
-                onChange={(e) => {
-                  const newComments = [...comments];
-                  newComments[currentQuestion] = e.target.value;
-                  setComments(newComments);
-                }}
-              ></textarea>
-            </div>
-          </div>
-        <button type="submit" className="submit-btn">Submit</button>
+          {/* </div> */}
+        <button type="submit" className="submit-btn" onClick={handleSubmit}>Submit</button>
       </form>
       <style>{`
         .container {
@@ -91,12 +98,15 @@ export default function Home() {
         }
         table {
           border-collapse: separate;
+          margin-left: 32px;
+          margin-bottom: 10px;
         }
         td {
           width: 30px;
           height: 30px;
           text-align: center;
           border: 1px solid #ccc;
+          box-shadow: 4px 2px 8px 2px rgba(0, 0, 0, 0.28)
         }
         .blue {
           background-color: #90EE90;
