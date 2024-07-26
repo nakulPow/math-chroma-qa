@@ -1,39 +1,62 @@
 'use client';
 import data from '../data.json';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import EditableParagraph from '../components/EditableParagraph';
+import { GrNext, GrPrevious } from 'react-icons/gr';
 // import React, {useState}  from 'react';
 export default function Home() {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState(data[0].question);
   const [answers, setAnswers] = useState(data.map(() => new Object()));
   const [comments, setComments] = useState(data.map(() => new Object()));
   const colorCode = {'0':'white','1':'purple','2':'blue','3':'green','4':'red','5':'yellow','6':'cyan','7':'orange','8':'gray','9':'pink'}
+  useEffect(() => {
+    setCurrentQuestion(data[currentIndex].question);
+  }, [currentIndex, data]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Submitted Answers:', answers);
     console.log('Submitted Comments:', comments);
-    if (currentQuestion < data.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    }
-    else{
-     alert('All Questions are Answered') 
-    }
+    // if (currentQuestion < data.length - 1) {
+    //   setCurrentQuestion(currentQuestion + 1);
+    // }
+    // else{
+    //  alert('All Questions are Answered') 
+    // }
     // Handle form submission logic here
   };
 
-  const item = data[currentQuestion]
+  const goToPrevious = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex > 0 ? prevIndex - 1 : 0
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex < data.length - 1 ? prevIndex + 1 : 0
+    );
+  };
+
+  const item = data[currentIndex]
   
   return(
 <div className="container">
-      <EditableParagraph placeholder={`Question ${currentQuestion+1}: ${item.question}`}/>
-      
+      <div style={{textAlign:'end'}}>
+        <button onClick={goToPrevious} className="qNavBtn"><GrPrevious/></button>
+        <button onClick={goToNext} className="qNavBtn"><GrNext /></button>
+      </div>
+      <div>
+      <EditableParagraph placeholder={`Question ${currentIndex+1}: ${currentQuestion}`}/>
+      </div>
       <form onSubmit={handleSubmit}>
           {/* <div key={currentQuestion}> */}
             {/* <h1 className="text-2xl font-bold mb-4">Question {currentQuestion + 1}: {item.question}</h1>
             <EditableParagraph placeholder={item.question}/>
             <p style={{fontSize:'26px'}}>Question {currentQuestion + 1}: {item.question}</p> */}
             <div className="matrices">
-            <br/>
+            
             <p style={{fontSize:'22px'}}>Input Matrices:</p>
               {item.matrices.map((mItem, mIndex) => (
                 <div key={mIndex} className="matrix">
@@ -117,6 +140,7 @@ export default function Home() {
         }
         .form-group {
           margin-bottom: 20px;
+          
         }
         label {
           display: block;
@@ -127,6 +151,7 @@ export default function Home() {
           padding: 10px;
           border: 1px solid #ccc;
           border-radius: 4px;
+          box-shadow: 4px 2px 8px 2px rgba(0, 0, 0, 0.28)
         }
         .submit-btn {
           background-color: #000000;
@@ -141,6 +166,13 @@ export default function Home() {
           cursor: pointer;
           border-radius: 4px;
           float:right;
+        }
+        .qNavBtn {
+          border: 1px solid black;
+          padding: 6px;
+          font-size: 30px;
+          margin: 4px;
+          cursor: pointer;
         }
       `}</style>
     </div>
