@@ -1,8 +1,8 @@
 import React, { useState , useEffect} from 'react';
 import { TbEditCircle } from 'react-icons/tb';
 
-const EditableParagraph = ({ placeholder }) => {
-  console.log(placeholder)
+const EditableParagraph = ({ onDataSend, placeholder }) => {
+  
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(placeholder);
   
@@ -18,15 +18,18 @@ const EditableParagraph = ({ placeholder }) => {
 
   const handleEdit = () => {
     setIsEditing(true);
+    
   };
 
   const handleUpdate = () => {
     setIsEditing(false);
+    onDataSend(text.split(":")[1])
     // Here you can add logic to save the updated text to your backend
   };
 
   const handleChange = (e) => {
     setText(e.target.value);
+    
   };
 
   return (
@@ -34,6 +37,7 @@ const EditableParagraph = ({ placeholder }) => {
       {isEditing ? (
         <div>
           <textarea
+            id=""
             value={text}
             onChange={handleChange}
             className="w-full p-2 border rounded"

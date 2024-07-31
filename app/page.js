@@ -2,107 +2,173 @@
 import data from '../data.json';
 import React, { useState, useEffect } from 'react';
 import EditableParagraph from '../components/EditableParagraph';
+import styles from '../components/SwitchToggle.module.css';
 import { GrNext, GrPrevious } from 'react-icons/gr';
-// import React, {useState}  from 'react';
+
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(data[0].question);
-  const [answers, setAnswers] = useState(data.map(() => new Object()));
-  const [comments, setComments] = useState(data.map(() => new Object()));
-  const colorCode = {'0':'white','1':'purple','2':'blue','3':'green','4':'red','5':'yellow','6':'cyan','7':'orange','8':'gray','9':'pink'}
+  const [responses, setResponses] = useState(data.map(() => ({
+    id: "",
+    question: {
+      value: "",
+      to_keep: true
+    },
+    matrices: {
+      A: {
+        value: "",
+        to_keep: true,
+        comments: "",
+        explanation: ""
+      },
+      B: {
+        value: "",
+        to_keep: true,
+        comments: "",
+        explanation: ""
+      },
+      C: {
+        value: "",
+        to_keep: true,
+        comments: "",
+        explanation: ""
+      }
+    }
+  })));
+
+  const colorCode = {'0':'white','1':'purple','2':'blue','3':'green','4':'red','5':'yellow','6':'cyan','7':'orange','8':'gray','9':'pink'};
+
   useEffect(() => {
     setCurrentQuestion(data[currentIndex].question);
-  }, [currentIndex, data]);
+  }, [currentIndex]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Submitted Answers:', answers);
-    console.log('Submitted Comments:', comments);
-    // if (currentQuestion < data.length - 1) {
-    //   setCurrentQuestion(currentQuestion + 1);
-    // }
-    // else{
-    //  alert('All Questions are Answered') 
-    // }
-    // Handle form submission logic here
+    console.log(responses);
+    if (currentIndex < data.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
   };
 
   const goToPrevious = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex > 0 ? prevIndex - 1 : 0
-    );
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
   };
 
   const goToNext = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex < data.length - 1 ? prevIndex + 1 : 0
-    );
+    if (currentIndex < data.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
   };
 
-  const item = data[currentIndex]
+  const handleChildData = (data) => {
+    setCurrentQuestion(data);
+  };
+
+  const updateResponse = (matrixKey, field, value) => {
+    const newResponses = [...responses];
+    newResponses[currentIndex].id = currentIndex;
+    newResponses[currentIndex].question.value = currentQuestion;
+    newResponses[currentIndex].matrices[matrixKey][field] = value;
+    setResponses(newResponses);
+  };
+
+  const item = data[currentIndex];
   
   return(
-<div className="container">
-      <div style={{textAlign:'end'}}>
-        <button onClick={goToPrevious} className="qNavBtn"><GrPrevious/></button>
-        <button onClick={goToNext} className="qNavBtn"><GrNext /></button>
-      </div>
-      <div>
-      <EditableParagraph placeholder={`Question ${currentIndex+1}: ${currentQuestion}`}/>
-      </div>
+    <div className="container">
       <form onSubmit={handleSubmit}>
-          {/* <div key={currentQuestion}> */}
-            {/* <h1 className="text-2xl font-bold mb-4">Question {currentQuestion + 1}: {item.question}</h1>
-            <EditableParagraph placeholder={item.question}/>
-            <p style={{fontSize:'26px'}}>Question {currentQuestion + 1}: {item.question}</p> */}
-            <div className="matrices">
-            
-            <p style={{fontSize:'22px'}}>Input Matrices:</p>
-              {item.matrices.map((mItem, mIndex) => (
-                <div key={mIndex} className="matrix">
-                  <p style={{fontSize:'22px'}}>{(mIndex + 10).toString(36).toUpperCase()}.</p>
-                  <table>
-                    <tbody>
-                      {mItem.replace(/\[|\]/g, '').split(',\n').map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                          {row.split(',').map((col, colIndex) => (
-                            <td key={colIndex} style={{backgroundColor: col in colorCode ? colorCode[col] : 'white'}}></td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="form-group">
-                    <label htmlFor={`answer-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`} style={{fontSize:'22px'}}>Answer:</label>
-                    <textarea
-                      id={`answer-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`}
-                      name={`answer-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`}
-                      rows="4"
-                      onChange={(e) => {
-                        const newAnswers = [...answers];
-                        newAnswers[currentQuestion][(mIndex + 10).toString(36)]= e.target.value;
-                        setAnswers(newAnswers);
-                      }}    
-                    ></textarea>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor={`comments-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`} style={{fontSize:'22px'}}>Comments:</label>
-                    <textarea
-                      id={`comments-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`}
-                      name={`comments-${currentQuestion}-${(mIndex + 10).toString(36).toUpperCase()}`}
-                      rows="4"
-                      onChange={(e) => {
-                        const newComments = [...comments];
-                        newComments[currentQuestion][(mIndex + 10).toString(36)]= e.target.value;
-                        setComments(newComments);
-                      }}
-                    ></textarea>
-                  </div>
+        <div style={{textAlign:'end'}}>
+          <button type="button" onClick={goToPrevious} className="qNavBtn"><GrPrevious/></button>
+          <button type="button" onClick={goToNext} className="qNavBtn"><GrNext /></button>
+        </div>
+        <div>
+          <EditableParagraph onDataSend={handleChildData} placeholder={`Question ${currentIndex+1}: ${currentQuestion}`}/>
+        </div>
+        <div className="matrices">
+          <br/>
+          <p style={{fontSize:'22px'}}>Input Matrices:</p>
+          {item.matrices.map((mItem, mIndex) => {
+            const matrixKey = (mIndex + 10).toString(36).toUpperCase();
+            return (
+              <div key={mIndex} className="matrix">
+                <p style={{fontSize:'22px'}}>{matrixKey}.</p>
+                <table>
+                  <tbody>
+                    {mItem.replace(/\[|\]/g, '').split(',\n').map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {row.split(',').map((col, colIndex) => (
+                          <td key={colIndex} style={{backgroundColor: col in colorCode ? colorCode[col] : 'white'}}></td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+               
+                <div className="form-group">
+                  <label htmlFor={`answer-${currentIndex}-${matrixKey}`} style={{fontSize:'22px'}}>Answer:</label>
+                  <textarea
+                    id={`answer-${currentIndex}-${matrixKey}`}
+                    name={`answer-${currentIndex}-${matrixKey}`}
+                    rows="4"
+                    required={true}
+                    value={responses[currentIndex].matrices[matrixKey].value}
+                    onChange={(e) => updateResponse(matrixKey, 'value', e.target.value)}
+                  ></textarea>
                 </div>
-              ))}
-              
-            </div>
-          {/* </div> */}
+                <div className="form-group">
+                  <label htmlFor={`comments-${currentIndex}-${matrixKey}`} style={{fontSize:'22px'}}>Comments:</label>
+                  <textarea
+                    id={`comments-${currentIndex}-${matrixKey}`}
+                    name={`comments-${currentIndex}-${matrixKey}`}
+                    rows="4"
+                    value={responses[currentIndex].matrices[matrixKey].comments}
+                    onChange={(e) => updateResponse(matrixKey, 'comments', e.target.value)}
+                  ></textarea>
+                </div>
+                <div className="Explanations">
+                  <label htmlFor={`explanation-${currentIndex}-${matrixKey}`} style={{fontSize:'22px'}}>Explanation:</label>
+                  <textarea
+                    id={`explanation-${currentIndex}-${matrixKey}`}
+                    rows="4"
+                    style={{fontSize:'16px'}}
+                    value={responses[currentIndex].matrices[matrixKey].explanation || item.explanation[mIndex]}
+                    onChange={(e) => updateResponse(matrixKey, 'explanation', e.target.value)}
+                  ></textarea>
+                </div>
+                <div>
+                  <br/>
+                  <p style={{fontSize:'22px'}}> Keep Matrix: </p>
+                  <label className={styles.switch}>
+                    <input
+                      type="checkbox"
+                      checked={responses[currentIndex].matrices[matrixKey].to_keep}
+                      onChange={(e) => updateResponse(matrixKey, 'to_keep', e.target.checked)}
+                    />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
+              </div>
+            );
+          })}
+          <div>
+            <br/>
+            <p style={{fontSize:'22px'}}> Keep Question: </p>
+            <label className={styles.switch}>
+              <input
+                type="checkbox"
+                checked={responses[currentIndex].question.to_keep}
+                onChange={(e) => {
+                  const newResponses = [...responses];
+                  newResponses[currentIndex].question.to_keep = e.target.checked;
+                  setResponses(newResponses);
+                }}
+              />
+              <span className={styles.slider}></span>
+            </label>
+          </div>
+        </div>
         <button type="submit" className="submit-btn">Submit</button>
       </form>
       <style>{`
@@ -132,15 +198,8 @@ export default function Home() {
           border: 1px solid #ccc;
           box-shadow: 4px 2px 8px 2px rgba(0, 0, 0, 0.28)
         }
-        .blue {
-          background-color: #90EE90;
-        }
-        .default{
-          background-color: #cacaca;
-        }
         .form-group {
           margin-bottom: 20px;
-          
         }
         label {
           display: block;
